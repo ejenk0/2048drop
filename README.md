@@ -18,7 +18,7 @@ Use `R` to reset when the game is paused or stopped.
 
 ## Installation
 
-Clone the repo and if you are using an M1/M2 based Mac simply run the `.app` file in `dist`. Otherwise see below for source building instructions.
+Clone the repo and if you are using an M1/M2 based Mac or Windows simply run the `.app` or `.exe` file in `dist`. Otherwise see below for source building instructions or running with python.
 
 ### Building using pyinstaller
 

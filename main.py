@@ -394,13 +394,13 @@ class PauseText(pg.sprite.Sprite):
         self.rect.midbottom = self.win.get_rect().midbottom
 
 
-def end(quit: bool = True):
+def end(q: bool = True):
     with open("performance_history.json", "r") as f:
         data = json.load(f)
     data[dt.now().strftime("%y/%m/%d %H:%M.%S")] = performance
     with open("performance_history.json", "w") as f:
         json.dump(data, f, indent=2)
-    if quit:
+    if q:
         pg.quit()
         quit()
 

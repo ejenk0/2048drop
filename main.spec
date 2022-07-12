@@ -41,11 +41,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='2048drop_icon.icns',
-)
-app = BUNDLE(
-    exe,
-    name='main.app',
-    icon='2048drop_icon.icns',
-    bundle_identifier=None,
+    icon='2048drop_icon_64.ico',
 )
