@@ -4,11 +4,6 @@ import random as rd
 from datetime import datetime as dt
 import json
 
-pg.init()
-
-WIN = pg.display.set_mode((1000, 700), pg.RESIZABLE)
-pg.display.set_caption("2048 Drop")
-
 
 class Board(pg.sprite.Sprite):
     def __init__(self, win: pg.Surface):
@@ -24,38 +19,38 @@ class Board(pg.sprite.Sprite):
         WHITE = (255, 255, 255)
 
         # Original game
-        # self.tilecolours = {
-        #     "2": {"bg": (237, 228, 218), "text": BLACK},
-        #     "4": {"bg": (237, 224, 199), "text": BLACK},
-        #     "8": {"bg": (242, 177, 120), "text": WHITE},
-        #     "16": {"bg": (244, 148, 99), "text": WHITE},
-        #     "32": {"bg": (246, 123, 96), "text": WHITE},
-        #     "64": {"bg": (245, 94, 59), "text": WHITE},
-        #     "128": {"bg": (237, 207, 114), "text": WHITE},
-        #     "246": {"bg": (236, 204, 96), "text": WHITE},
-        #     "512": {"bg": (236, 200, 81), "text": WHITE},
-        #     "1024": {"bg": (237, 200, 60), "text": WHITE},
-        #     "2048": {"bg": (236, 193, 46), "text": WHITE},
-        #     "4096": {"bg": (61, 57, 50), "text": WHITE},
-        # }
-
         self.tilecolours = {
             "2": {"bg": (237, 228, 218), "text": BLACK},
-            "4": {"bg": (237, 216, 161), "text": BLACK},
-            "8": {"bg": (236, 205, 103), "text": WHITE},
-            "16": {"bg": (236, 193, 46), "text": WHITE},
-            "32": {"bg": (235, 154, 38), "text": WHITE},
-            "64": {"bg": (234, 115, 30), "text": WHITE},
-            "128": {"bg": (233, 75, 22), "text": WHITE},
-            "256": {"bg": (232, 36, 14), "text": WHITE},
-            "512": {"bg": (134, 187, 189), "text": WHITE},
-            "1024": {"bg": (95, 112, 213), "text": WHITE},
-            "2048": {"bg": (55, 36, 237), "text": WHITE},
-            "4096": {"bg": (102, 36, 237), "text": WHITE},
-            "8192": {"bg": (117, 26, 231), "text": WHITE},
-            "16384": {"bg": (132, 17, 225), "text": WHITE},
-            "32768": {"bg": (147, 7, 219), "text": WHITE},
+            "4": {"bg": (237, 224, 199), "text": BLACK},
+            "8": {"bg": (242, 177, 120), "text": WHITE},
+            "16": {"bg": (244, 148, 99), "text": WHITE},
+            "32": {"bg": (246, 123, 96), "text": WHITE},
+            "64": {"bg": (245, 94, 59), "text": WHITE},
+            "128": {"bg": (237, 207, 114), "text": WHITE},
+            "246": {"bg": (236, 204, 96), "text": WHITE},
+            "512": {"bg": (236, 200, 81), "text": WHITE},
+            "1024": {"bg": (237, 200, 60), "text": WHITE},
+            "2048": {"bg": (236, 193, 46), "text": WHITE},
+            "4096": {"bg": (61, 57, 50), "text": WHITE},
         }
+
+        # self.tilecolours = {
+        #     "2": {"bg": (237, 228, 218), "text": BLACK},
+        #     "4": {"bg": (237, 216, 161), "text": BLACK},
+        #     "8": {"bg": (236, 205, 103), "text": WHITE},
+        #     "16": {"bg": (236, 193, 46), "text": WHITE},
+        #     "32": {"bg": (235, 154, 38), "text": WHITE},
+        #     "64": {"bg": (234, 115, 30), "text": WHITE},
+        #     "128": {"bg": (233, 75, 22), "text": WHITE},
+        #     "256": {"bg": (232, 36, 14), "text": WHITE},
+        #     "512": {"bg": (134, 187, 189), "text": WHITE},
+        #     "1024": {"bg": (95, 112, 213), "text": WHITE},
+        #     "2048": {"bg": (55, 36, 237), "text": WHITE},
+        #     "4096": {"bg": (102, 36, 237), "text": WHITE},
+        #     "8192": {"bg": (117, 26, 231), "text": WHITE},
+        #     "16384": {"bg": (132, 17, 225), "text": WHITE},
+        #     "32768": {"bg": (147, 7, 219), "text": WHITE},
+        # }
 
         self.update()
 
@@ -400,129 +395,146 @@ def end(q: bool = True):
     data[dt.now().strftime("%y/%m/%d %H:%M.%S")] = performance
     with open("performance_history.json", "w") as f:
         json.dump(data, f, indent=2)
+
+    with open("replays.json", "r") as f:
+        replays = json.load(f)
+    replays[dt.now().strftime("%y/%m/%d %H:%M.%S")] = replay
+    with open("replays.json", "w") as f:
+        json.dump(replays, f)
+
     if q:
         pg.quit()
         quit()
 
 
 def reset():
-    global BOARD, igt, actions, performance, playing, paused, timesincetick
+    global BOARD, igt, actions, performance, replay, playing, paused, timesincetick
     end(False)
     BOARD.reset()
     igt = 0
     actions = 0
     performance = {}
+    replay = {}
     playing = True
     paused = False
     timesincetick = 0
 
 
-clock = pg.time.Clock()
+if __name__ == "__main__":
+    pg.init()
 
-paused = False
+    WIN = pg.display.set_mode((1000, 700), pg.RESIZABLE)
+    pg.display.set_caption("2048 Drop")
 
-elements = pg.sprite.Group()
-BOARD = Board(WIN)
-elements.add(BOARD)
-elements.add(Score(WIN, BOARD))
-deathtext = DeathText(WIN)
-pausetext = PauseText(WIN)
-elements.add(deathtext, pausetext)
+    clock = pg.time.Clock()
 
-timetext = Time(WIN)
-spstext = SPS(WIN)
-apmtext = APM(WIN)
+    paused = False
 
-elements.add(timetext, spstext, apmtext)
+    elements = pg.sprite.Group()
+    BOARD = Board(WIN)
+    elements.add(BOARD)
+    elements.add(Score(WIN, BOARD))
+    deathtext = DeathText(WIN)
+    pausetext = PauseText(WIN)
+    elements.add(deathtext, pausetext)
 
-tickinterval = 700
+    timetext = Time(WIN)
+    spstext = SPS(WIN)
+    apmtext = APM(WIN)
 
-timesincetick = 0
-igt = 0
-actions = 0
+    elements.add(timetext, spstext, apmtext)
 
-performance = {}
+    tickinterval = 700
 
-speed_keys = {pg.K_q: -3, pg.K_w: -2, pg.K_e: -1, pg.K_i: 1, pg.K_o: 2, pg.K_p: 3}
+    timesincetick = 0
+    igt = 0
+    actions = 0
 
-playing = True
-while True:
-    delta = clock.tick(60)
-    winsize = WIN.get_size()
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            end()
-        elif event.type == pg.KEYDOWN:
-            if playing and not paused:
-                actions += 1
-                if event.key == pg.K_RIGHT:
-                    BOARD.slide(1)
-                elif event.key == pg.K_LEFT:
-                    BOARD.slide(-1)
-                elif event.key == pg.K_SPACE:
-                    BOARD.harddrop()
-                    timesincetick = 0
-                # Speed keys
-                elif event.key in speed_keys.keys():
-                    success = True
-                    for i in range(abs(speed_keys[event.key])):
-                        success = min(success, BOARD.slide(speed_keys[event.key]))
-                    if success:
+    performance = {}
+    replay = {}
+
+    speed_keys = {pg.K_q: -3, pg.K_w: -2, pg.K_e: -1, pg.K_i: 1, pg.K_o: 2, pg.K_p: 3}
+
+    playing = True
+    while True:
+        delta = clock.tick(60)
+        winsize = WIN.get_size()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                end()
+            elif event.type == pg.KEYDOWN:
+                if playing and not paused:
+                    actions += 1
+                    if event.key == pg.K_RIGHT:
+                        BOARD.slide(1)
+                    elif event.key == pg.K_LEFT:
+                        BOARD.slide(-1)
+                    elif event.key == pg.K_SPACE:
                         BOARD.harddrop()
+                        timesincetick = 0
+                    # Speed keys
+                    elif event.key in speed_keys.keys():
+                        success = True
+                        for i in range(abs(speed_keys[event.key])):
+                            success = min(success, BOARD.slide(speed_keys[event.key]))
+                        if success:
+                            BOARD.harddrop()
 
-                else:
-                    actions -= 1
+                    else:
+                        actions -= 1
 
-            if event.key == pg.K_ESCAPE:
-                paused = not paused
-            if event.key == pg.K_r and (paused or not playing):
-                reset()
+                if event.key == pg.K_ESCAPE:
+                    paused = not paused
+                if event.key == pg.K_r and (paused or not playing):
+                    reset()
 
-    if playing and not paused:
-        igt += delta
-        timesincetick += delta
+        if playing and not paused:
+            igt += delta
+            timesincetick += delta
 
-        score = BOARD.score()
-        sps = score / (igt / 1000)
-        apm = actions / (igt / 60000)
+            score = BOARD.score()
+            sps = score / (igt / 1000)
+            apm = actions / (igt / 60000)
 
-        deathtext.active = False
-        pausetext.active = False
-        timetext.value = round(igt / 1000)
-        spstext.value = round(sps, 1)
-        apmtext.value = round(apm, 1)
+            deathtext.active = False
+            pausetext.active = False
+            timetext.value = round(igt / 1000)
+            spstext.value = round(sps, 1)
+            apmtext.value = round(apm, 1)
 
-        if not "raw" in performance.keys():
-            performance["raw"] = {}
-        performance["raw"][str(igt)] = {
-            "time": igt,
-            "sps": sps,
-            "score": score,
-            "aps": apm / 60,
-            "apm": apm,
-        }
-        if timesincetick >= tickinterval:
-            tick = True
-            timesincetick = 0
+            replay[str(igt)] = BOARD.board.tolist()
+
+            if not "raw" in performance.keys():
+                performance["raw"] = {}
+            performance["raw"][str(igt)] = {
+                "time": igt,
+                "sps": sps,
+                "score": score,
+                "aps": apm / 60,
+                "apm": apm,
+            }
+            if timesincetick >= tickinterval:
+                tick = True
+                timesincetick = 0
+            else:
+                tick = False
+        elif not playing:
+            deathtext.active = True
+            pausetext.active = False
         else:
-            tick = False
-    elif not playing:
-        deathtext.active = True
-        pausetext.active = False
-    else:
-        deathtext.active = False
-        pausetext.active = True
+            deathtext.active = False
+            pausetext.active = True
 
-    WIN.fill((255, 255, 255))
-    # draw next tile prompt ((1/8 - 1/10) / 2 = 1/80)
-    if BOARD.nexttile:
-        next_tile_size = WIN.get_height() / 10
-        WIN.blit(
-            BOARD.tile_image(BOARD.nexttile, next_tile_size),
-            (WIN.get_width() / 2 - next_tile_size / 2, WIN.get_height() / 80),
-        )
+        WIN.fill((255, 255, 255))
+        # draw next tile prompt ((1/8 - 1/10) / 2 = 1/80)
+        if BOARD.nexttile:
+            next_tile_size = WIN.get_height() / 10
+            WIN.blit(
+                BOARD.tile_image(BOARD.nexttile, next_tile_size),
+                (WIN.get_width() / 2 - next_tile_size / 2, WIN.get_height() / 80),
+            )
 
-    elements.update(tick)
-    elements.draw(WIN)
+        elements.update(tick)
+        elements.draw(WIN)
 
-    pg.display.update()
+        pg.display.update()
